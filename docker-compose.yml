@@ -1,0 +1,31 @@
+# docker-compose.yml
+version: '3'
+services:
+  #backend:
+  #  build: .
+  #  ports:
+  #    - "8089:8089"
+  #  environment:
+  #    MONGODB_URI: "mongodb://mongo:27017/comp3123_assignment2"
+  #  depends_on:
+  #    - mongodb
+
+  mongodb:
+    image: "mongo:latest"
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: mongoadmin
+      MONGO_INITDB_ROOT_PASSWORD: password
+    volumes: 
+      - ./data/mongo:/data/db
+      - ./init/mongo/docker-entrypoint-initdb.d/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+    container_name: mongodb
+    command: mongod --auth
+    networks:
+      - react-app
+
+networks:
+  react-app:
+    driver: bridge
