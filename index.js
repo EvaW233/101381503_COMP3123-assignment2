@@ -6,11 +6,13 @@ const app = express();
 const port = process.env.PORT || 8089;
 
 const User = require('./models/user');
-const Employee = require('./models/employees'); 
+const Employee = require('./models/employees');
 
-mongoose.connect('mongodb://localhost/comp3123_assignment1', {
+// mongodb://bramirez:bramirez%4006~@170.187.155.55:27017/?retryWrites=true&w=majority
+mongoose.connect('mongodb://mongoadmin:password@localhost:27017/?retryWrites=true&w=majority', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
+  dbName: "comp3123_assignment1"
 });
 
 app.use(bodyParser.json());
@@ -46,80 +48,79 @@ app.post('/api/v1/user/login', (req, res) => {
 
 // 3. User can get all employee list (GET)
 app.get('/api/v1/emp/employees', (req, res) => {
-    // Fetch all employees from the database
-    Employee.find({})
-      .then(employees => {
-        res.status(200).json(employees);
-      })
-      .catch(err => {
-        res.status(500).json({ status: false, message: 'Internal Server Error' });
-      });
-  });
-  
+  // Fetch all employees from the database
+  Employee.find({})
+    .then(employees => {
+      res.status(200).json(employees);
+    })
+    .catch(err => {
+      res.status(500).json({ status: false, message: 'Internal Server Error' });
+    });
+});
+
 
 // 4. User can create a new employee (POST)
 app.post('/api/v1/emp/employees', (req, res) => {
-    // Extract employee data from the request body
-    const { first_name, last_name, email, gender, salary } = req.body;
-    Employee.create({ first_name, last_name, email, gender, salary })
-      .then(newEmployee => {
-        res.status(201).json({ status: true, message: 'Employee created successfully' });
-      })
-      .catch(err => {
-        res.status(400).json({ status: false, message: 'Employee creation failed' });
-      });
-  });
-  
-  // 5. User can get employee details by employee ID (GET)
-  app.get('/api/v1/emp/employees/:eid', (req, res) => {
-    const eid = req.params.eid; 
-    Employee.findOne({ _id: eid })
-      .then(employee => {
-        if (!employee) {
-          res.status(404).json({ status: false, message: 'Employee not found' });
-        } else {
-          res.status(200).json(employee);
-        }
-      })
-      .catch(err => {
-        res.status(500).json({ status: false, message: 'Internal Server Error' });
-      });
-  });
-  
-  app.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
-  });
-  
-  // 6. User can update employee details (PUT)
+  // Extract employee data from the request body
+  const { first_name, last_name, email, gender, salary } = req.body;
+  Employee.create({ first_name, last_name, email, gender, salary })
+    .then(newEmployee => {
+      res.status(201).json({ status: true, message: 'Employee created successfully' });
+    })
+    .catch(err => {
+      res.status(400).json({ status: false, message: 'Employee creation failed' });
+    });
+});
+
+// 5. User can get employee details by employee ID (GET)
+app.get('/api/v1/emp/employees/:eid', (req, res) => {
+  const eid = req.params.eid;
+  Employee.findOne({ _id: eid })
+    .then(employee => {
+      if (!employee) {
+        res.status(404).json({ status: false, message: 'Employee not found' });
+      } else {
+        res.status(200).json(employee);
+      }
+    })
+    .catch(err => {
+      res.status(500).json({ status: false, message: 'Internal Server Error' });
+    });
+});
+
+// 6. User can update employee details (PUT)
 app.put('/api/v1/emp/employees/:eid', (req, res) => {
-    const eid = req.params.eid; 
-    const { first_name, last_name, email, gender, salary } = req.body;
-    Employee.findByIdAndUpdate(eid, { first_name, last_name, email, gender, salary }, { new: true })
-      .then(updatedEmployee => {
-        if (!updatedEmployee) {
-          res.status(404).json({ status: false, message: 'Employee not found' });
-        } else {
-          res.status(200).json({ status: true, message: 'Employee details updated successfully', updatedEmployee });
-        }
-      })
-      .catch(err => {
-        res.status(500).json({ status: false, message: 'Internal Server Error' });
-      });
-  });
-  
-  // 7. User can delete employee by employee ID (DELETE)
+  const eid = req.params.eid;
+  const { first_name, last_name, email, gender, salary } = req.body;
+  Employee.findByIdAndUpdate(eid, { first_name, last_name, email, gender, salary }, { new: true })
+    .then(updatedEmployee => {
+      if (!updatedEmployee) {
+        res.status(404).json({ status: false, message: 'Employee not found' });
+      } else {
+        res.status(200).json({ status: true, message: 'Employee details updated successfully', updatedEmployee });
+      }
+    })
+    .catch(err => {
+      res.status(500).json({ status: false, message: 'Internal Server Error' });
+    });
+});
+
+// 7. User can delete employee by employee ID (DELETE)
 app.delete('/api/v1/emp/employees/:eid', (req, res) => {
-    const eid = req.params.eid;
-    Employee.findByIdAndRemove(eid)
-      .then(deletedEmployee => {
-        if (!deletedEmployee) {
-          res.status(404).json({ status: false, message: 'Employee not found' });
-        } else {
-          res.status(204).send(); 
-        }
-      })
-      .catch(err => {
-        res.status(500).json({ status: false, message: 'Internal Server Error' });
-      });
-  });
-  
+  const eid = req.params.eid;
+  Employee.findByIdAndRemove(eid)
+    .then(deletedEmployee => {
+      if (!deletedEmployee) {
+        res.status(404).json({ status: false, message: 'Employee not found' });
+      } else {
+        res.status(204).send();
+      }
+    })
+    .catch(err => {
+      res.status(500).json({ status: false, message: 'Internal Server Error' });
+    });
+});
+//
+app.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
+});
